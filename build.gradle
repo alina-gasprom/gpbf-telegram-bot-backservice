@@ -1,7 +1,13 @@
+buildscript {
+    dependencies {
+        classpath 'org.postgresql:postgresql:42.2.14'
+    }
+}
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.1'
     id 'io.spring.dependency-management' version '1.1.5'
+    id "org.jooq.jooq-codegen-gradle" version "3.19.10"
 }
 
 group = 'ru.alina.gpbf'
@@ -18,9 +24,70 @@ repositories {
 }
 
 dependencies {
+    //STARTER
     implementation 'org.springframework.boot:spring-boot-starter'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // WEB
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '3.3.0'
+
+    //MAPPER
+    implementation group: 'org.modelmapper', name: 'modelmapper', version: '3.2.0'
+
+    // VALIDATE
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '3.3.0'
+
+
+    // DB
+    implementation group: 'org.springframework', name: 'spring-jdbc', version: '6.1.10'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jooq', version: '3.3.1'
+
+    //test
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+
+}
+
+def props = new Properties()
+file('src/main/resources/application.properties').withInputStream {
+    props.load(it)
+}
+def url = props['spring.datasource.url']
+def username = props['spring.datasource.username']
+def passwordPg = props['spring.datasource.password']
+
+jooq {
+    configuration {
+        jdbc {
+            driver = 'org.postgresql.Driver'
+            url = 'jdbc:postgresql://localhost:5432/gpbf'
+            user = username
+            password = passwordPg
+        }
+
+        generator {
+            generate {
+
+                // Generate the Sequences class
+                sequences = true
+            }
+            database {
+                name = "org.jooq.meta.postgres.PostgresDatabase"
+            }
+            target {
+
+                // The destination package of your generated classes (within the
+                // destination directory)
+                packageName = "ru.alina.gpbf.backservice.jooq"
+
+                // The destination directory of your generated classes
+                directory = "src/main/java"
+            }
+        }
+
+    }
+
 }
 
 tasks.named('test') {
