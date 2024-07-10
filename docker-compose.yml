@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  app:
+    image: 'docker-spring-boot-postgres-bs:latest'
+    ports:
+      - "6060:6060"
+    build:
+      context: .
+    container_name: app-bs
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/gpbf
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1234
+
+  db:
+    image: 'postgres'
+    container_name: db-gpbf
+    environment:
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=gpbf
+    volumes:
+      - /Users/alina/homeDockerBot/var/lib/postgresql/data:/var/lib/postgresql/data
+      - /Users/alina/Desktop/projects/gpfW/back-service/src/main/resources/static/db/initDB.sql:/docker-entrypoint-initdb.d/data.sql # name in container is arbitrary
+
+
+volumes:
+  pgdata:
+    driver: local
+  pgconf:
+    driver: local
+  pglog:
+    driver: local
+
+
