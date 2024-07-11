@@ -8,6 +8,8 @@ import ru.alina.gpbf.backservice.jooq.public_.tables.Users;
 import ru.alina.gpbf.backservice.repository.impl.UserRepository;
 
 
+import java.util.Objects;
+
 import static ru.alina.gpbf.backservice.jooq.public_.Sequences.GLOBAL_SEQ;
 
 
@@ -21,10 +23,10 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
-        return dsl.insertInto(Users.USERS)
-                .values(dsl.nextval(GLOBAL_SEQ), user.getTelegramId(), user.getUserName())
-                .returning()
-                .fetchOne()
+        return Objects.requireNonNull(dsl.insertInto(Users.USERS)
+                        .values(dsl.nextval(GLOBAL_SEQ), user.getTelegramId(), user.getUserName())
+                        .returning()
+                        .fetchOne())
                 .into(User.class);
 
     }
